@@ -1,0 +1,24 @@
+package stateMachine
+
+import "fmt"
+
+type CreatedState struct {
+	payoutContext *PayoutContext
+}
+
+func (i *CreatedState) validation(marketplace, counterParty int) error {
+	if marketplace != 1 || counterParty != 100 {
+		return fmt.Errorf("Marketplace or Counterparty invalid!")
+	}
+	fmt.Printf("payout validated!\n")
+	i.payoutContext.setState(i.payoutContext.validated)
+
+	return nil
+}
+
+func (i *CreatedState) hasbalance(amount float64) error {
+	return fmt.Errorf("Payout must validate first!")
+}
+func (i *CreatedState) payCounterparty(amount float64) error {
+	return fmt.Errorf("Payout must validate first!")
+}

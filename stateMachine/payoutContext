@@ -1,0 +1,66 @@
+package stateMachine
+
+import "fmt"
+
+type PayoutContext struct {
+	created   State
+	validated State
+	success   State
+	balanced  State
+	rejected  State
+
+	currentState State
+
+	amount       float64
+	balance      float64
+	marketplace  int
+	counterParty int
+}
+
+func New(amount float64, marketplace, counterParty int) *PayoutContext {
+	v := &PayoutContext{
+		amount:       amount,
+		marketplace:  marketplace,
+		counterParty: counterParty,
+	}
+	createdState := &CreatedState{
+		payoutContext: v,
+	}
+	// validatedState := &ValidatedState{
+	// 	payoutContext: v,
+	// }
+	// balancedState := &BalancedState{
+	// 	payoutContext: v,
+	// }
+	// successState := &SuccessState{
+	// 	payoutContext: v,
+	// }
+
+	v.setState(createdState)
+	v.created = createdState
+	// v.validated = validatedState
+	// v.success = successState
+	// v.balanced = balancedState
+	return v
+}
+
+func (v *PayoutContext) setState(s State) {
+	v.currentState = s
+}
+
+func (v *PayoutContext) Validation(marketplace, counterparty int) error {
+	return v.currentState.validation(marketplace, counterparty)
+}
+
+func (v *PayoutContext) Hasbalance(amount float64) error {
+	return v.currentState.hasbalance(amount)
+}
+
+func (v *PayoutContext) PayCounterparty(amount float64) error {
+	return v.currentState.payCounterparty(amount)
+}
+
+func (v *PayoutContext) IncrementBalance(debit float64) {
+	fmt.Printf("Adding %f debit\n", debit)
+	v.balance = v.balance + debit
+}
